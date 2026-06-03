@@ -643,6 +643,13 @@
 				If [param enabled] is [code]true[/code], child nodes with the lowest Y position are drawn before those with a higher Y position. Y-sorting only affects children that inherit from the canvas item specified by the [param item] RID, not the canvas item itself. Equivalent to [member CanvasItem.y_sort_enabled].
 			</description>
 		</method>
+		<method name="canvas_item_set_sorting_group">
+			<return type="void" />
+			<param index="0" name="item" type="RID" />
+			<param index="1" name="enabled" type="bool" />
+			<description>
+			</description>
+		</method>
 		<method name="canvas_item_set_transform">
 			<return type="void" />
 			<param index="0" name="item" type="RID" />
@@ -4769,10 +4776,10 @@
 		<constant name="ARRAY_WEIGHTS_SIZE" value="4">
 			Number of weights/bones per vertex.
 		</constant>
-		<constant name="CANVAS_ITEM_Z_MIN" value="-4096">
+		<constant name="CANVAS_ITEM_Z_MIN" value="-4095">
 			The minimum Z-layer for canvas items.
 		</constant>
-		<constant name="CANVAS_ITEM_Z_MAX" value="4096">
+		<constant name="CANVAS_ITEM_Z_MAX" value="4095">
 			The maximum Z-layer for canvas items.
 		</constant>
 		<constant name="CANVAS_LAYER_MIN" value="-2147483648">
