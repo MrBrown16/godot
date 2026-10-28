@@ -34,6 +34,7 @@
 #include "core/config/project_settings.h"
 #include "core/math/geometry_2d.h"
 #include "core/math/transform_interpolator.h"
+#include "core/profiling/profiling.h"
 #include "servers/rendering/renderer_viewport.h"
 #include "servers/rendering/rendering_server_default.h"
 #include "servers/rendering/rendering_server_globals.h"
@@ -70,6 +71,7 @@ void RendererCanvasCull::_dependency_deleted(const RID &p_dependency, Dependency
 
 void RendererCanvasCull::_render_canvas_item_tree(RID p_to_render_target, Canvas::ChildItem *p_child_items, int p_child_item_count, const Transform2D &p_transform, const Rect2 &p_clip_rect, const Color &p_modulate, RendererCanvasRender::Light *p_lights, RendererCanvasRender::Light *p_directional_lights, RSE::CanvasItemTextureFilter p_default_filter, RSE::CanvasItemTextureRepeat p_default_repeat, bool p_snap_2d_vertices_to_pixel, uint32_t p_canvas_cull_mask, RenderingServerTypes::RenderInfo *r_render_info) {
 	RENDER_TIMESTAMP("Cull CanvasItem Tree");
+	GodotProfileZoneGroupedFirst(_cull_tree, "Cull CanvasItem Tree");
 
 	// This is used to avoid passing the camera transform down the rendering
 	// function calls, as it won't be used in 99% of cases, because the camera
@@ -87,7 +89,7 @@ void RendererCanvasCull::_render_canvas_item_tree(RID p_to_render_target, Canvas
 	if (unlikely(entry.head == nullptr)) {
 		return;
 	}
-
+	GodotProfileZoneGroupedEndEarly(_cull_tree, "Cull CanvasItem Tree");
 	RENDER_TIMESTAMP("Render CanvasItems");
 
 	bool sdf_flag;
@@ -349,6 +351,7 @@ auto RendererCanvasCull::flatten_chunked_sparse_array(ChunkedSparseArray<Entry<I
 }
 
 void RendererCanvasCull::_cull_canvas_item(Item *p_canvas_item, const Transform2D &p_parent_xform, const Rect2 &p_clip_rect, const Color &p_modulate, int p_z, ChunkedSparseArray<Entry<Item>> &r_z_sparse_array, Item *p_canvas_clip, Item *p_material_owner, bool p_is_already_y_sorted, uint32_t p_canvas_cull_mask, const Point2 &p_repeat_size, int p_repeat_times, RendererCanvasRender::Item *p_repeat_source_item) {
+	GodotProfileZone("Cull Item");
 	Item *ci = p_canvas_item;
 
 	if (!ci->visible) {
