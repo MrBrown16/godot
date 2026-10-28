@@ -393,15 +393,7 @@ void RendererCanvasCull::_cull_canvas_item(Item *p_canvas_item, const Transform2
 	}
 
 	//put sorting_group logic here
-	//call _cull_canvas_item for p_canvas_item with new r_z_sparse_array, and setting the is_sorting_group_root to true (only when it's false and is root do we want new lists and we need to skip regular processing for the group root)
-	//when all is culled append the new flattenedlinked list to the parent's z index
-	//if all goes right the whole subtree including the root will be ordered as normal and then the whole list gets added to the root's z_index effectively forming a group that gets rendered in order and no other items can be inserted between them
 	if (ci->sorting_group && !is_sorting_group_root) {
-		// if (ci->sparse_array == nullptr) {
-		// 	ERR_PRINT("ci->sparse_array == nullptr");
-		// 	fflush(stderr);
-		// 	return;
-		// }
 		ci->sparse_array->clear();
 
 		//call _cull_canvas_item again for p_canvas_item with new lists and is_sorting_group_root=true
