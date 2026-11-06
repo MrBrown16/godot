@@ -71,37 +71,39 @@ void RendererCanvasCull::_dependency_deleted(const RID &p_dependency, Dependency
 
 void RendererCanvasCull::_render_canvas_item_tree(RID p_to_render_target, Canvas::ChildItem *p_child_items, int p_child_item_count, const Transform2D &p_transform, const Rect2 &p_clip_rect, const Color &p_modulate, RendererCanvasRender::Light *p_lights, RendererCanvasRender::Light *p_directional_lights, RSE::CanvasItemTextureFilter p_default_filter, RSE::CanvasItemTextureRepeat p_default_repeat, bool p_snap_2d_vertices_to_pixel, uint32_t p_canvas_cull_mask, RenderingServerTypes::RenderInfo *r_render_info) {
 	RENDER_TIMESTAMP("Cull CanvasItem Tree");
-	GodotProfileZoneGroupedFirst(_cull_tree, "Cull CanvasItem Tree");
-
-	// This is used to avoid passing the camera transform down the rendering
-	// function calls, as it won't be used in 99% of cases, because the camera
-	// transform is normally concatenated with the item global transform.
-	_current_camera_transform = p_transform;
-
-	memset(z_list, 0, z_range * sizeof(RendererCanvasRender::Item *));
-	memset(z_last_list, 0, z_range * sizeof(RendererCanvasRender::Item *));
-
-	for (int i = 0; i < p_child_item_count; i++) {
-		_cull_canvas_item(p_child_items[i].item, p_transform, p_clip_rect, Color(1, 1, 1, 1), 0, z_list, z_last_list, nullptr, nullptr, false, p_canvas_cull_mask, Point2(), 1, nullptr);
-	}
-
 	RendererCanvasRender::Item *list = nullptr;
 	RendererCanvasRender::Item *list_end = nullptr;
+	{
+		GodotProfileZone("Cull CanvasItem Tree");
+		// GodotProfileZoneGroupedFirst(_cull_tree, "Cull CanvasItem Tree");
 
-	for (int i = 0; i < z_range; i++) {
-		if (!z_list[i]) {
-			continue;
+		// This is used to avoid passing the camera transform down the rendering
+		// function calls, as it won't be used in 99% of cases, because the camera
+		// transform is normally concatenated with the item global transform.
+		_current_camera_transform = p_transform;
+
+		memset(z_list, 0, z_range * sizeof(RendererCanvasRender::Item *));
+		memset(z_last_list, 0, z_range * sizeof(RendererCanvasRender::Item *));
+
+		for (int i = 0; i < p_child_item_count; i++) {
+			_cull_canvas_item(p_child_items[i].item, p_transform, p_clip_rect, Color(1, 1, 1, 1), 0, z_list, z_last_list, nullptr, nullptr, false, p_canvas_cull_mask, Point2(), 1, nullptr);
 		}
-		if (!list) {
-			list = z_list[i];
-			list_end = z_last_list[i];
-		} else {
-			list_end->next = z_list[i];
-			list_end = z_last_list[i];
+
+		for (int i = 0; i < z_range; i++) {
+			if (!z_list[i]) {
+				continue;
+			}
+			if (!list) {
+				list = z_list[i];
+				list_end = z_last_list[i];
+			} else {
+				list_end->next = z_list[i];
+				list_end = z_last_list[i];
+			}
 		}
+
+		// GodotProfileZoneGroupedEndEarly(_cull_tree, "Cull CanvasItem Tree");
 	}
-
-	GodotProfileZoneGroupedEndEarly(_cull_tree, "Cull CanvasItem Tree");
 	RENDER_TIMESTAMP("Render CanvasItems");
 
 	bool sdf_flag;
